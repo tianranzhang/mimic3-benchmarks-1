@@ -61,7 +61,7 @@ def calculate(channel_data, period, sub_period, functions):
 
 def extract_features_single_episode(data_raw, period, functions):
     global sub_periods
-    extracted_features = [np.concatenate([calculate(data_raw[i], period, sub_period, functions)
+    extracted_features = [np.concatenate([calculate(list(data_raw[i]), period, sub_period, functions)
                                                 for sub_period in sub_periods],
                                          axis=0) 
                             for i in range(len(data_raw))]

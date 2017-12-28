@@ -27,14 +27,13 @@ parser.add_argument('--features', type=str, default="all",
                     help="all, len, all_but_len")
 
 args = parser.parse_args()
-print args
-
-train_reader = InHospitalMortalityReader(dataset_dir='../../../data/in-hospital-mortality/train/',
-                    listfile='../../../data/in-hospital-mortality/train_listfile.csv',
+print(args)
+train_reader = InHospitalMortalityReader(dataset_dir='/Volumes/SAMSUNG_/mimic3-benchmarks-1/data/in-hospital-mortality/train/',
+                    listfile='/Volumes/SAMSUNG_/mimic3-benchmarks-1/data/in-hospital-mortality/train_listfile.csv',
                     period_length=48.0)
 
-val_reader = InHospitalMortalityReader(dataset_dir='../../../data/in-hospital-mortality/train/',
-                    listfile='../../../data/in-hospital-mortality/val_listfile.csv',
+val_reader = InHospitalMortalityReader(dataset_dir='/Volumes/SAMSUNG_/mimic3-benchmarks-1/data/in-hospital-mortality/train/',
+                    listfile='/Volumes/SAMSUNG_/mimic3-benchmarks-1/data/in-hospital-mortality/val_listfile.csv',
                     period_length=48.0)
 
 
@@ -45,16 +44,16 @@ def read_and_extract_features(reader):
     return (X, y)
 
 
-print "==> reading data and extracting features"
+print ("==> reading data and extracting features")
 prev_time = time.time()
 (train_X, train_y) = read_and_extract_features(train_reader)
 (val_X, val_y) = read_and_extract_features(val_reader)
-print "train.shape ", train_X.shape
-print "val.shape", val_X.shape
-print "==> elapsed time = %.3f" % (time.time() - prev_time)
+print ("train.shape ", train_X.shape)
+print ("val.shape", val_X.shape)
+print ("==> elapsed time = %.3f" % (time.time() - prev_time))
 
 
-print "==> imputing missing values"
+print ("==> imputing missing values")
 # imput missing values
 imputer = Imputer(missing_values=np.nan, strategy='mean', axis=0,
                   verbose=0, copy=True)
@@ -62,7 +61,7 @@ imputer.fit(train_X)
 train_X = np.array(imputer.transform(train_X), dtype=np.float32)
 val_X = np.array(imputer.transform(val_X), dtype=np.float32)
 
-print "==> normalizing data"
+print ("==> normalizing data")
 # shift and scale to have zero mean and unit variance
 scaler = StandardScaler()
 scaler.fit(train_X)
@@ -86,7 +85,7 @@ with open(os.path.join("results", file_name + ".txt"), "w") as resfile:
     
     resfile.write("acc, prec0, prec1, rec0, rec1, auroc, auprc, minpse\n")
     
-    print "Scores on train set"
+    print ("Scores on train set")
     ret = metrics.print_metrics_binary(train_y, logreg.predict_proba(train_X))
     resfile.write("%.6f,%.6f,%.6f,%.6f,%.6f,%.6f,%.6f,%.6f\n" % (
         ret['acc'],
@@ -98,7 +97,7 @@ with open(os.path.join("results", file_name + ".txt"), "w") as resfile:
         ret['auprc'],
         ret['minpse']))
         
-    print "Scores on validation set"
+    print ("Scores on validation set")
     ret = metrics.print_metrics_binary(val_y, logreg.predict_proba(val_X))
     resfile.write("%.6f,%.6f,%.6f,%.6f,%.6f,%.6f,%.6f,%.6f\n" % (
         ret['acc'],
@@ -128,7 +127,7 @@ test_X = np.array(imputer.transform(test_X), dtype=np.float32)
 test_X = scaler.transform(test_X)
 
 with open(os.path.join("results", file_name + ".txt"), "a") as resfile:
-    print "Scores on test set"
+    print ("Scores on test set")
     ret = metrics.print_metrics_binary(test_y, logreg.predict_proba(test_X))
     resfile.write("%.6f,%.6f,%.6f,%.6f,%.6f,%.6f,%.6f,%.6f\n" % (
         ret['acc'],

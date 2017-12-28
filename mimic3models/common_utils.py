@@ -8,20 +8,30 @@ from mimic3models.feature_extractor import extract_features
 
 def convert_to_dict(data, header, channel_info):
     """ convert data from readers output in to array of arrays format """
-    ret = [[] for i in range(data.shape[1] - 1)]
-    for i in range(1, data.shape[1]):
-        ret[i-1] = [(t, x) for (t, x) in zip(data[:, 0], data[:, i]) if x != ""]
+    ret = [[] for i in range(np.shape(data)[1] - 1)]
+    #print(data)
+    for i in range(1, np.shape(data)[1]):
+        print(data[:][0][0])
+        print(data[:][0][4])
+
+        ret[i-1] = [(t, x) for (t, x) in zip(data[:][0], data[:][i]) if x != ""]
+
         channel = header[i]
         if (len(channel_info[channel]['possible_values']) != 0):
-            ret[i-1] = map(lambda x: (x[0], channel_info[channel]['values'][x[1]]), ret[i-1])
-        ret[i-1] = map(lambda x: (float(x[0]), float(x[1])), ret[i-1])
+            ret[i-1] = map(lambda x: (x[0], channel_info[channel]['values'][x[1]]), list(ret[i-1]))
+            print(list(ret[i-1]))
+
+        print("debug!!!")
+        print(list(ret[i-1]))
+        #print(list(ret[i-1])[1])
+        ret[i-1] = map(lambda x: (float(x[0]), float(x[1])), list(ret[i-1]))
     return ret
 
 
 def extract_features_from_rawdata(chunk, header, period, features):
     with open(os.path.join(os.path.dirname(__file__), "channel_info.json")) as channel_info_file:
         channel_info = json.loads(channel_info_file.read())
-    data = [convert_to_dict(X, header, channel_info) for X in chunk]
+    data = [convert_to_dict(list(X), header, channel_info) for X in chunk]
     return extract_features(data, period, features)
 
 
@@ -41,7 +51,7 @@ def sort_and_shuffle(data, batch_size):
     tail = data[old_size - rem:]
     data = []
 
-    head.sort(key=(lambda x: x[0].shape[0]))
+    head.sort(key=(lambda x: np.shape(x[0])[0]))
 
     mas = [head[i : i+batch_size] for i in range(0, len(head), batch_size)]
     random.shuffle(mas)
